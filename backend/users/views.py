@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, generics
+from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import User, Follow
+from .models import Follow, User
 from .paginations import LimitPagination
-from .serializers import UserSerializer, FollowSerializer
+from .serializers import FollowSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from users.views import UserViewSet, SubscriptionListView
+from users.views import SubscriptionListView, UserViewSet
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet, basename="users")
