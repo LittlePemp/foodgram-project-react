@@ -2,7 +2,6 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from users.serializers import UserSerializer
-
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 
@@ -29,9 +28,10 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField()
-    measurement_unit = serializers.SerializerMethodField()
+    id = serializers.ReadOnlyField(source='ingredients.id')
+    name = serializers.ReadOnlyField(source='ingredients.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredients.measurement_unit')
 
     class Meta:
         model = RecipeIngredient
@@ -41,15 +41,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
             'measurement_unit',
             'amount',
         )
-
-    def get_name(self, obj):
-        return obj.ingredients.name
-
-    def get_id(self, obj):
-        return obj.ingredients.id
-
-    def get_measurement_unit(self, obj):
-        return obj.ingredients.measurement_unit
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -108,40 +99,61 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Пару слов о реецепте')
         return text
 
-    def validate_ingredients(self, ingredients):
+    def validate_tags(self, tags):
+        if (not tags) or (len(tags) != len(set(tags))):
+            raise serializers.ValidationError('Теги!')
+        return tags
+
+    def validate_cooking_time(self, cooking_time):
+        if not cooking_time:
+            raise serializers.ValidationError('Время - деньги!')
+        return cooking_time
+
+    def validate(self, data):
+        """ Удалю потом, просто хочу сказать, что после 6 часов раздумий
+        я только так смог засунуть ингредиенты в validated_data.
+        Неплохо же вышло))) ;0 """
+        ingredients = self.initial_data.get('ingredients')
         if not ingredients:
             raise serializers.ValidationError('Из чего готовим?')
-        return ingredients
-
-    def validate_tags(self, tags):
-        if not tags:
-            raise serializers.ValidationError('Из чего готовим?')
-        return tags
+        data['ingredients'] = list()
+        for ingredient in ingredients:
+            try:
+                instance = Ingredient.objects.get(id=ingredient.get('id'))
+            except Exception as error:
+                raise serializers.ValidationError(
+                    f'{error} / Таких ингредиентов еще не изобрели('
+                )
+            amount = ingredient.get('amount', 0)
+            if (not amount) or (amount <= 0):
+                raise serializers.ValidationError('Нужна доза')
+            data['ingredients'].append(
+                {
+                    "ingredient": instance,
+                    "amount": amount,
+                }
+            )
+        return data
 
     def create_link_ingredients(self, ingredients, recipe):
         for ingredient in ingredients:
             RecipeIngredient.objects.create(
                 recipe=recipe,
-                ingredients_id=ingredient.get('id'),
-                amount=ingredient.get('amount'),
+                ingredients=ingredient['ingredient'],
+                amount=ingredient['amount'],
             )
 
     def create(self, validated_data):
-        ingredients = self.validate_ingredients(
-            self.initial_data.get('ingredients')
-        )
-        tags = self.validate_tags(
-            self.initial_data.get('tags')
-        )
-        validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
         self.create_link_ingredients(ingredients, recipe)
         recipe.tags.set(tags)
         return recipe
 
     def update(self, recipe, validated_data):
-        ingredients = self.initial_data.get('ingredients')
-        tags = self.initial_data.get('tags')
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
         recipe = super().update(recipe, validated_data)
         if ingredients:
             recipe.ingredients.clear()

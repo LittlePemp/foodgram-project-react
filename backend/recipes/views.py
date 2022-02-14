@@ -7,7 +7,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from users.paginations import LimitPagination
-
 from .filters import IngredientFilter, RecipeFilter
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
@@ -40,13 +39,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(
-        detail=True,
-        methods=['POST', 'DELETE'],
-        permission_classes=[IsAuthenticated],
-    )
-    def favorite(self, request, id=None):
-        item = Favorite.objects.filter(
+    def processing_item(self, request, id, obj):
+        item = obj.objects.filter(
             user=request.user,
             recipe__id=id,
         )
@@ -57,7 +51,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 Recipe,
                 id=id,
             )
-            Favorite.objects.create(
+            obj.objects.create(
                 user=request.user,
                 recipe=recipe,
             )
@@ -80,35 +74,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['POST', 'DELETE'],
         permission_classes=[IsAuthenticated],
     )
+    def favorite(self, request, id=None):
+        response = self.processing_item(
+            request=request,
+            id=id,
+            obj=Favorite,
+        )
+        return response
+
+    @action(
+        detail=True,
+        methods=['POST', 'DELETE'],
+        permission_classes=[IsAuthenticated],
+    )
     def shopping_cart(self, request, id=None):
-        item = ShoppingCart.objects.filter(
-            user=request.user,
-            recipe__id=id,
+        response = self.processing_item(
+            request=request,
+            id=id,
+            obj=ShoppingCart,
         )
-        msg = ('Только POST запрос на существующий,',
-               'DELETE на несуществующий рецепт')
-        if (request.method == 'POST') and (not item.exists()):
-            recipe = get_object_or_404(
-                Recipe,
-                id=id,
-            )
-            ShoppingCart.objects.create(
-                user=request.user,
-                recipe=recipe,
-            )
-            serializer = TargetSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        elif (request.method == 'DELETE') and (item.exists()):
-            item.delete()
-            msg = 'Удалено'
-            return Response(
-                {'Confirmation': msg},
-                status=status.HTTP_204_NO_CONTENT
-            )
-        return Response(
-            {'errors': msg},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        return response
 
     @action(detail=False, methods=['GET'],
             permission_classes=[IsAuthenticated])

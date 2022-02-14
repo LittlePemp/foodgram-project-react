@@ -7,7 +7,6 @@ from users.models import User
 class Tag(models.Model):
     name = models.CharField(
         max_length=200,
-        blank=False,
         verbose_name='Название',
     )
     color = models.CharField(
@@ -33,13 +32,11 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
-        blank=False,
         verbose_name='Название',
     )
     measurement_unit = models.CharField(
         max_length=200,
-        blank=False,
-        verbose_name='Доза',
+        verbose_name='Единица измерения',
     )
 
     class Meta:
@@ -59,11 +56,9 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=200,
-        blank=False,
         verbose_name='Название',
     )
     text = models.TextField(
-        blank=False,
         verbose_name='Описание',
     )
     image = models.ImageField(
@@ -72,9 +67,9 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        blank=False,
         verbose_name='Ингредиенты',
         through='RecipeIngredient',
+        related_name='ingredients'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -83,7 +78,6 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         validators=[MinValueValidator(1)],
-        blank=False,
         default=1,
         verbose_name='Время приготовления (мин.)',
     )
@@ -102,23 +96,27 @@ class Recipe(models.Model):
 class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
-        blank=False,
         on_delete=models.CASCADE,
         related_name='ingredients_recipe',
     )
     ingredients = models.ForeignKey(
         Ingredient,
-        blank=False,
         on_delete=models.PROTECT,
         related_name='ingredients_recipe',
     )
     amount = models.PositiveSmallIntegerField(
         blank=False,
-        verbose_name='Количество ингредиентов',
+        verbose_name='Доза',
         validators=(MinValueValidator(1),),
     )
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredients'],
+                name='ingredients_recipe',
+            ),
+        ]
         verbose_name = 'Ингредиентов в рецепте'
         ordering = ('recipe',)
 

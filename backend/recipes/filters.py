@@ -1,8 +1,8 @@
-from django_filters import (ChoiceFilter, FilterSet,  # isort:skip
-                            ModelChoiceFilter, ModelMultipleChoiceFilter)
+from django_filters import (ChoiceFilter, FilterSet, ModelChoiceFilter,
+                            ModelMultipleChoiceFilter)
 from rest_framework.filters import SearchFilter
 
-from recipes.models import Recipe, Tag, User  # isort:skip
+from recipes.models import Recipe, Tag, User
 
 
 class IngredientFilter(SearchFilter):
