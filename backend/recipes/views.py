@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 
 from users.paginations import LimitPagination
@@ -11,8 +11,8 @@ from .filters import IngredientFilter, RecipeFilter
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                      ShoppingCart, Tag)
 from .permissions import IsAuthor, IsReadOnly
-from .serializers import (IngredientSerializer, RecipeSerializer,
-                          TagSerializer, TargetSerializer)
+from .serializers import (IngredientSerializer, RecipeCreateSerializer,
+                          RecipeSerializer, TagSerializer, TargetSerializer)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -30,11 +30,15 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     permission_classes = (IsReadOnly | IsAuthor,)
     pagination_class = LimitPagination
     filter_backend = (RecipeFilter,)
     lookup_field = 'id'
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return RecipeSerializer
+        return RecipeCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -106,9 +110,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(total_amount=Sum('amount'))
         products = [
             (
-                f"{ingredient['ingredients__name']}\t"
-                f" {ingredient['total_amount']}\n"
-                f" ({ingredient['ingredients__measurement_unit']})\t"
+                f"{ingredient['ingredients__name']}\t --"
+                f" {ingredient['total_amount']}\t"
+                f"({ingredient['ingredients__measurement_unit']})\n"
             )
             for ingredient in ingredients]
         response = HttpResponse(products, content_type='text/plain')
