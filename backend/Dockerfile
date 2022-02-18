@@ -1,6 +1,6 @@
 FROM python:3.7-slim
 WORKDIR /app
-COPY backend/requirements.txt ./
+COPY requirements.txt ./
 RUN apt update && \
 	apt upgrade -y && \
 	python3 -m pip install --upgrade pip && \
