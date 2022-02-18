@@ -2,10 +2,13 @@
 ignore =
     W503,
     F811,
-    E402
+    E402,
+    I004,
+    N802,
+    I802,
+    I001
 exclude =
-    tests/,
-    *migrations/,
+    */migrations/,
     venv/,
     env/
 per-file-ignores =

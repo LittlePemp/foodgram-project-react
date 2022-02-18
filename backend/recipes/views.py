@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
@@ -32,7 +33,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsReadOnly | IsAuthor,)
     pagination_class = LimitPagination
-    filter_backend = (RecipeFilter,)
+    filter_backends = [DjangoFilterBackend]
+    filter_class = RecipeFilter
     lookup_field = 'id'
 
     def get_serializer_class(self):
@@ -92,6 +94,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated],
     )
     def shopping_cart(self, request, id=None):
+        print(request.user)
         response = self.processing_item(
             request=request,
             id=id,
@@ -107,7 +110,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredients__name',
             'ingredients__measurement_unit'
-        ).annotate(total_amount=Sum('amount'))
+        ).annotate(total_amount=Sum('amount')).order_by()
         products = [
             (
                 f"{ingredient['ingredients__name']}\t --"
