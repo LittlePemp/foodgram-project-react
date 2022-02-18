@@ -60,7 +60,7 @@ jobs:
           script: |
             sudo docker pull largepemp/foodgram
             sudo docker stop $(sudo docker ps -a -q)
-            sudo docker-compose rm backend
+            sudo docker image prune -f
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
