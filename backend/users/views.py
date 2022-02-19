@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Follow, User
@@ -26,7 +26,6 @@ class UserViewSet(viewsets.ModelViewSet):
     def subscribe(self, request, id):
         author = get_object_or_404(User, id=id)
         user = request.user
-        serializer = FollowSerializer(author)
         if request.method == 'POST':
             if Follow.objects.filter(user=user, author=author).exists():
                 return Response({"errors": "Вы уже подписаны на этого автора"},
