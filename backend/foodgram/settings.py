@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = [os.getenv('HOST'), 'backend', 'foodgram.serveminecraft.net']
+ALLOWED_HOSTS = [os.getenv('HOST'), 'backend', 'foodgram.serveminecraft.net', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',

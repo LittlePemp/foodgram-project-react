@@ -12,22 +12,17 @@ from .serializers import FollowSerializer, UserSerializer
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
-    @action(detail=False, methods=['GET'],
-            permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['GET'])
     def me(self, request):
         data = UserSerializer(
             self.request.user,
             context={'request': request}).data
         return Response(data)
 
-    @action(
-        detail=True,
-        methods=['POST', 'DELETE'],
-        permission_classes=[IsAuthenticated]
-    )
+    @action(detail=True, methods=['POST', 'DELETE'])
     def subscribe(self, request, id):
         author = get_object_or_404(User, id=id)
         user = request.user
@@ -41,8 +36,10 @@ class UserViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
 
             Follow.objects.create(user=user, author=author)
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
+            data = UserSerializer(
+                author,
+                context={'request': request}).data
+            return Response(data, status=status.HTTP_201_CREATED)
 
         Follow.objects.filter(user=user, author=author).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

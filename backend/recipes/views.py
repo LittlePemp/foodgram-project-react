@@ -26,6 +26,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter,)
+    permission_classes = [AllowAny]
     search_fields = ('^name',)
 
 

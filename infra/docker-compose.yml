@@ -12,7 +12,10 @@ services:
       - "5432:5432"
 
   backend:
-    image: largepemp/foodgram:latest
+    #image: largepemp/foodgram:latest
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     restart: always
     volumes:
       - ../data/:/backend/data/
