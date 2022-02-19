@@ -1,5 +1,11 @@
 ![example workflow](https://github.com/LittlePemp/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+# ДЛЯ МИХАИЛА ИВАНОВА!!!!!!!!!
 
+[Домен](http://foodgram.serveminecraft.net)
+
+Админ: 
+<email: admin@admin.admin> 
+<password: admin> 
 
 # Продуктовый помощник
 
