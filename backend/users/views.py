@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Follow, User
@@ -12,17 +12,19 @@ from .serializers import FollowSerializer, UserSerializer
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     lookup_field = 'id'
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'],
+        permission_classes = [IsAuthenticated])
     def me(self, request):
         data = UserSerializer(
             self.request.user,
             context={'request': request}).data
         return Response(data)
 
-    @action(detail=True, methods=['POST', 'DELETE'])
+    @action(detail=True, methods=['POST', 'DELETE'],
+        permission_classes = [IsAuthenticated])
     def subscribe(self, request, id):
         author = get_object_or_404(User, id=id)
         user = request.user
