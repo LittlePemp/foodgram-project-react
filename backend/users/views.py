@@ -16,7 +16,7 @@ class UserViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
 
     @action(detail=False, methods=['GET'],
-        permission_classes = [IsAuthenticated])
+            permission_classes=[IsAuthenticated])
     def me(self, request):
         data = UserSerializer(
             self.request.user,
@@ -24,7 +24,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     @action(detail=True, methods=['POST', 'DELETE'],
-        permission_classes = [IsAuthenticated])
+            permission_classes=[IsAuthenticated])
     def subscribe(self, request, id):
         author = get_object_or_404(User, id=id)
         user = request.user
