@@ -9,7 +9,9 @@
 
 ## Запуск проекта на локальной машине
 ### Склонировать репозиторий на локальную машину:
-<git clone https://github.com/LittlePemp/foodgram-project-react.git>
+```
+git clone https://github.com/LittlePemp/foodgram-project-react.git
+```
 ### Подготовка и запуск:
 1) Создайте файл окружения <./backend/.env> с параметрами:
 ```
