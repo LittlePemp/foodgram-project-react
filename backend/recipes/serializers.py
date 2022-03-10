@@ -16,6 +16,9 @@ class IngredientSerializer(serializers.ModelSerializer):
             'measurement_unit',
         )
 
+    def validate_name(self, name):
+        print(name)
+        return name
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:

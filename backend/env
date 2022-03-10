@@ -1,0 +1,7 @@
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=foodgram
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=admin
+DB_HOST=db
+DB_PORT=5432
+DJANGO_KEY=ea&bqq8e^l&*akxack0*kdb!$b3nyx-m*c_de30tz!%t5651*k
