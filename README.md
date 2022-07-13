@@ -1,13 +1,4 @@
 ![example workflow](https://github.com/LittlePemp/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
-# ДЛЯ МИХАИЛА ИВАНОВА!!!!!!!!!
-Как дурак решил без дампа поиграться с certbot'ом и слетели бд. Создана и заполнена новыми рецептами
-
-[Домен](http://foodgram.serveminecraft.net)
-
-Админ: 
-<email: admin@admin.admin> 
-<password: admin> 
-
 # Продуктовый помощник
 
 **Foodgram** - это сервис, позволяющий создавать и делиться своми уникальными рецептами и подписываться на таких же умелых кулинаров, как Вы. 
